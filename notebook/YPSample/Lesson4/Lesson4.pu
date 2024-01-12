@@ -1,0 +1,15 @@
+@startuml
+title Lesson4 Sample1
+
+start
+:「売上を入力してください。」を表示;
+:売上を入力/
+if (>=100) then (はい)
+   :「売上は好調です。」を表示;
+else (いいえ)
+endif
+
+:「処理を終了します。」を表示;
+end
+
+@enduml
