@@ -1,5 +1,5 @@
 @startuml
-title Lesson4 Sample1
+title Lesson4-1
 
 start
 :「売上を入力してください。」を表示;
