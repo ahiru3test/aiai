@@ -1,3 +1,5 @@
+//import 'dart:io';
+
 void main() {
   print("Sample1");
   int sale=10;
@@ -20,7 +22,7 @@ void main() {
   print("\nSample4");
   print(1+2);
 
-  print("\nSample5");
+  print("\nSample5,6");
   int price=50;
   int num=10;
   int total= price*num;
@@ -34,6 +36,12 @@ void main() {
   print((int.parse('0100',radix:2))>>1);
 
 
-  print("\nSample6");
+  print("\nSample7");
+  num=10;
+  String pic="〇";
+  String graph = pic * num;
+  print("売上："+graph.toString());
+  print(num.toString()+"万円の売上があります。");
+  print(num.toString()+"型変換して足す。");
 
 }
