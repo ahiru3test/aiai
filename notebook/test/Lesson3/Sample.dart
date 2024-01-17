@@ -29,6 +29,9 @@ void main() {
   print(~(int.parse('0101',radix:2)));
   print(int.parse('0101',radix:2)|int.parse('0100',radix:2));
   print(int.parse('0101',radix:2)&int.parse('0100',radix:2));
+  print(int.parse('0101',radix:2)^int.parse('0100',radix:2));
+  print((int.parse('0101',radix:2))<<1);
+  print((int.parse('0100',radix:2))>>1);
 
 
   print("\nSample6");
