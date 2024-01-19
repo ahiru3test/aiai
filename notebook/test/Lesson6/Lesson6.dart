@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io';
 
 void main(){
   var t=[1,2,3];
@@ -58,5 +59,28 @@ void main(){
   }
   print("現在のデータは"+sale.toString()+"です。");
 
-}
+  print("\nSample4");
+  sale={"東京":80, "名古屋":60,"京都":22,"大阪":50,"福岡":75};
+  print("現在のデータは"+sale.toString()+"です。");
 
+  print("キーを表示します。");
+  for (var k in sale.keys){
+    stdout.write(k+"\t");
+  }
+  print("");
+
+  print("値を表示します。");
+  for (var v in sale.values){
+    stdout.write(v.toString()+"\t");
+  }
+  print("");
+
+  print("キーと値を表示します。");
+  for (var e in sale.entries){
+    stdout.write(e.key+","+e.value.toString()+"\t");
+  }
+  print("");
+
+
+
+}
