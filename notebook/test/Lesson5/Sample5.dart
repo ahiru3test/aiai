@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:quiver/iterables.dart';
 
@@ -11,6 +12,10 @@ import 'package:quiver/iterables.dart';
 // List<int> range(int start, int end, [int step = 1]) {
 //   return List<int>.generate((end - start) ~/ step + 1, (i) => start + i * step);
 // }
+int sum(List<int> list) {
+ return list.reduce((value, element) => value + element);
+}
+
 void main(){
   print("\nSample1");
   var sale=[80,60,22,50,75];
@@ -100,5 +105,73 @@ void main(){
   for (var d in enumerate(city)){
     print(d);
   }
+
+  print("\nSample13");
+  city=["東京","名古屋","大阪","京都"];
+  sale=[80,60,22,50,75];
+
+  print("都市データ名は"+city.toString()+"です。");
+  print("売上データは"+sale.toString()+"です。");
+
+  print("データを組み合わせます。");
+
+  for (var d in IterableZip([city,sale])){
+    print(d);
+  }
+
+  print("データを分解します。");
+
+  for (var pair in IterableZip([city,sale])){
+    print("都市名は"+pair[0].toString()+"売上は"+pair[1].toString());
+  }
+
+  print("\nSample14");
+  var data=[1,2,3,4,5];
+  print("現在のデータは"+data.toString()+"です。");
+
+  // ndata=[n*2 for n in data if n!=3]
+  var ndata = data.where((n) => n != 3).map((n) => n * 2).toList();
+  print("新しいデータは"+ndata.toString()+"です。");
+
+  print("\nSample15");
+  sale=[80,60,22,50,75];
+  print("現在のデータは"+sale.toString()+"です。");
+
+  print("最大のデータは"+max(sale).toString()+"です。");
+  print("最小のデータは"+min(sale).toString()+"です。");
+
+  print("データの合計は"+sum(sale).toString()+"です。");
+
+  sss = List.from(sale);
+  sss.sort();
+  print("ソートされたデータは"+sss.toString()+"です。");
+
+  var sss1 = List.from(sale);
+  print("ソートされたデータは"+sss1.sorted((a, b) => a - b).toString()+"です。");
+
+  sss2 = List.from(sale);
+  print("ソートされたデータは"+sss2.sorted((a, b) => b - a).toString()+"です。");
+
+
+  print("\nSample16");
+
+  var data2=[
+    ["東京",32,25],
+    ["名古屋",28,21],
+    ["大阪",27,20],
+    ["京都",26,19],
+    ["福岡",27,22],
+  ];
+  print("現在のデータは"+data2.toString()+"です。");
+
+  for (var dat in data2){
+    print("都市別データは"+dat.toString()+"です。");
+    for (var d in dat) {
+      stdout.write('$d\t');
+    }
+    print("");
+  }
+
+  print(data2[0][0].toString()+"の最高気温は"+data2[0][1].toString()+"最低気温は"+data2[0][2].toString()+"です。");
 
 }
