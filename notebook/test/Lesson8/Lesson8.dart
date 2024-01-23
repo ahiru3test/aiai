@@ -1,6 +1,6 @@
 import 'dart:core';
 
-void main(){
+void main(List<String> arguments){
   print("\nSample1");
   Person pr;
 

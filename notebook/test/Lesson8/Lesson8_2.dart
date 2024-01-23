@@ -1,7 +1,7 @@
 import 'dart:core';
 
 
-void main(){
+void main(List<String> arguments){
   var pr = Customer("鈴木",23,"mmm@nnn.nn.jp","xxx-xxx-xxxx");
   var nm = pr.getName();
   var ag = pr.getAge();
