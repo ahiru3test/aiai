@@ -12,53 +12,54 @@
 # with this program; if not, write to the Free Software Foundation, Inc.
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os, sys
+import os
 import time
 import csv
 import platform
 import sqlite3
 
-# db = "book.db"
-db = os.path.dirname(__file__) + "/book.db"
-conn = sqlite3.connect(db)
-c = conn.cursor()
-c.execute("select count(*) from sqlite_master where type='table' and name='books'")
-n=c.fetchall()[0][0]
-# Check that the table exists
-if n == 0:
-    # If the table books doesn't exist then create table
-    c.execute("create table books(id INTEGER PRIMARY KEY, title VARCHAR(255), price INTEGER, memo TEXT)")
-    c.execute("INSERT INTO books(title, price, memo) VALUES('Pythonチュートリアル',1800,'Guido van Rossum')")
-    c.execute("INSERT INTO books(title, price, memo) VALUES('やさしいPython',2580,'高橋麻奈')")
-    c.execute("INSERT INTO books(title, price, memo) VALUES('Pythonによる機械学習入門',2600,'株式会社システム計画研究所')")
+from sqlalchemy import create_engine
+engine = create_engine('sqlite:///:memory:', echo=False)
+#engine = create_engine('sqlite:///book.db', echo=True)
 
-conn.commit()
-conn.close()
-#file_err = open('book.log', 'w')
+
+from sqlalchemy.ext import declarative
+Base = declarative.declarative_base()
+from sqlalchemy import Column, Integer, Unicode, UnicodeText
+class Book(Base):
+    __tablename__ = 'books'
+    id = Column(Integer, primary_key=True)
+    title = Column(Unicode(100), nullable=False)
+    price = Column(Integer, nullable=False)
+    memo = Column(UnicodeText)
+    def __repr__(self):
+        return "<Book('%s', '%s', '%s')>" % (self.title, self.price, self.memo)
+
+Base.metadata.create_all(engine)
+
+from sqlalchemy.orm import sessionmaker
+Session = sessionmaker(bind=engine)
+session = Session()
+query = session.query(Book)
+count = query.count()
+if count == 0:
+    session.add_all([
+        Book(title= 'Pythonチュートリアル', price='1800', memo = 'Guido van Rossum'),
+        Book(title= 'やさしいPython', price='2580', memo = '高橋麻奈'),
+        Book(title= 'Pythonによる機械学習入門', price='2600', memo = '株式会社システム計画研究所'),
+    ])
+    session.commit()
+
 #ユーティリティ関数を定義します。
 #  get_return(): "Press return "を表示して「Enter」キーの入力を待ちます。
 #  get_confirm(): "Are you sure? "を表示して y,yes,Y,YESの入力を待ちます。
 #  clear_screen(): ターミナル画面を消去します。
-# =============================================================================
-# def input_str(msg):
-#     while True:
-#         try:
-#             print(msg, end="")
-#             str_ = input()
-#         except UnicodeDecodeError:
-#             print("UnicodeDecodeError: Try again")
-#             time.sleep(1)
-#         else:
-#             return str_
-# =============================================================================
-        
 def get_return():
     return input("Press return ")
 
 def get_confirm():
 
     while True:
-        #print("Are you sure? ", end="")
         x = input("Are you sure? ")
         if x in ['y','yes','Y','Yes','YES']:
             return True
@@ -76,102 +77,58 @@ def clear_screen():
     else:
         os.system('clear') # Linux or Mac
 
-#SQLiteデコレータ
-# SQLiteにアクセスする関数をデコレートします。
-#  データベース接続
-#  カーソル取得
-#  カーソルを引数にして被デコレート関数の呼び出し
-#  データベースコミット
-#  データベースクローズ
-def sqlctl(func):
-    def wrapper():
-        conn = sqlite3.connect(db)
-        c = conn.cursor()
-        func(c)
-        conn.commit()
-        conn.close()
-    return wrapper    
-
 #新しい書籍の登録をします。
 #  Title: 書籍のタイトルを入力します。
-#  Price: 書籍の価格を入力します。
+#  Price: 書籍の価格を入力します
 #  Memo: 書籍に関するメモを入力します。
-@sqlctl
-def add_book(c):
-    print("add_book")
- 
+def add_book():
+
     title = input("Enter title: ")
- 
+
     price = input("Enter price: ")
- 
+
     memo = input("Entre memo: ")
- 
+
     print()
     print("About to add new book")
     print("--------")
-    #print("ID: ",id)
+    print("ID: ",id)
     print("Title: ",title)
     print("Price: ",price)
     print("Memo: ",memo)
     print("--------")
- 
+
     if get_confirm():
 
-        sql = "INSERT INTO books(title, price, memo)VALUES(?,?,?)"
-        #print(sql, file=sys.stderr)
-        c.execute(sql,(title,price,memo))
+        book = Book(title = title, price = price, memo = memo)
+        session.add(book)
+        session.commit()
         print("Entry added")
- 
     get_return()
+    return
 
 #書籍の一覧を表示します。
 #書籍が無い場合は カラム名だけを表示します。
-@sqlctl
-def list_book(c):
+def list_book():
+
     print()
     print("{:^4} {:^6} {}".format("ID","Price","Title"))
     print("-"*26)
+    query = session.query(Book)
+    for book in query:
+        print("{:>4} {:>6,d} {}".format(book.id,int(book.price),book.title))
 
-    itr = c.execute("SELECT * FROM books")
-    for book in itr:
-        print("{:>4} {:>6,d} {}".format(book[0],int(book[2]),book[1]))
-
-    print()
     get_return()
+    return
 
 #指定されたIDの書籍を削除します。
 #  Enter ID to remove: 削除する書籍のIDを入力します。
 #  IDに一致した書籍のデータを表示して get_confirm()関数で確認して削除します。
 #  指定したIDの書籍がデータベース内に存在しないときは There is no book と表示しま
-@sqlctl
-def remove_book(c):
-    #print("remove_book")
-    
-    id = input("Enter ID to remove: ")
- 
-    sql = "SELECT * FROM books WHERE id = ?"
-    #print(sql, file=sys.stderr) # For DEBUG
-    c.execute(sql, (id,))
-    book = c.fetchall()
- 
-    if len(book) == 0:
-        print("There is no book")
-    else:
-        print()
-        print("You are about to remove\n")
-        print("--------")
-        print("ID: ", book[0][0])
-        print("Title: ", book[0][1])
-        print("Price: ", book[0][2])
-        print("Memo: ", book[0][3])
-        print("--------")
- 
-        if get_confirm():
-            sql = "DELETE FROM books WHERE id = ?"
-            c.execute(sql, (id,))
-            print("Entry removed")
- 
+def remove_book():
+    print("remove_book")
     get_return()
+    return
 
 #指定されたIDの書籍を更新します。
 #  Enter ID to update: 更新する書籍のIDを入力します。
@@ -181,81 +138,22 @@ def remove_book(c):
 #    Price: 書籍の価格を入力します
 #    Memo: 書籍に関するメモを入力します。
 #  指定したIDの書籍がデータベース内に存在しないときは There is no book と表示しま
-@sqlctl
-def update_book(c):
- 
-    id = input("Enter ID to update: ")
-    sql = "SELECT * FROM books WHERE id = ?"
-    c.execute(sql,(id,))
-    book = c.fetchall()
- 
-    if len(book) == 0:
-        print("There is no book")
-    else:
-        print()
-        print("You are about to update")
-        print("--------")
-        print("ID: ", book[0][0])
-        print("Title: ", book[0][1])
-        print("Price: ", book[0][2])
-        print("Memo: ", book[0][3])
-        print("--------")
- 
-        if get_confirm():
-            title = input("Enter new title: ")
- 
-            price = input("Enter new price: ")
- 
-            memo = input("Entre new memo: ")
- 
-            print()
-            print("About to update")
-            print("--------")
-            print("ID: ",id)
-            print("Title: ",title)
-            print("Price: ",price)
-            print("Memo: ",memo)
-            print("--------")
-            # If confirmed then append it to the file
-            if get_confirm():
-                sql = "UPDATE books SET title=?, price=?, memo=? WHERE id=?" 
-                c.execute(sql, (title,price,memo,id))
-                print("Entry updated")
- 
+def update_book():
+    print("update_book")
     get_return()
+    return
 
 #書籍のデータを表示します。
-#def show_book():
-#    print("show_book")
-#    get_return()
-#    return
-@sqlctl
-def show_book(c):
- 
-    id = input("Enter ID: ")
- 
-    sql = "SELECT * FROM books WHERE id = ?"
-    c.execute(sql,(id,))
-    book = c.fetchall()
- 
-    if len(book) == 0:
-        print("There is no book")
-    else:
-        print("--------")
-        print("ID: ", book[0][0])
-        print("Title: ", book[0][1])
-        print("Price: ", book[0][2])
-        print("Memo: ", book[0][3])
-        print("--------")
- 
+def show_book():
+    print("show_book")
     get_return()
-
+    return
 #
 #メニュー選択
 #  main()から呼び出され選択メニューを表示し入力待ちをします。
 #  入力選択されたメニュー(a～s,q)を呼び出し元のmain()関数に戻します。
 def set_menu_choice() :
-    #global cdcatnum
+    global cdcatnum
 
     clear_screen()
 
@@ -272,6 +170,7 @@ def set_menu_choice() :
     ret = input("Please enter choice then press return: ")
     return ret
 
+# Now the application proper
 #main() メイン関数
 #  cleara_screen() 関数でターミナル画面の文字を消去します。
 #  set_menu_choice() 関数でメニュー選択入力を待ちます。
