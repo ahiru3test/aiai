@@ -1,59 +1,49 @@
+import copy
 import numpy as np
+from mypkgs.LoopBase import *
 
-class LoopBase:
-    loop = True
-    def init(self):
-        pass
-    def input(self):
-        pass
-    def logic(self):
-        pass
-    def check(self):
-        pass
-    def view(self):
-        pass
-    def loop(self):
-      while(LoopBase.loop):
-          pass
-
-# class seven_loop(loop_base, metaclass=Singleton):
+# sevenのメインループクラス
 class SevenLoop(LoopBase):
     card_deck = []
     seven_players = []
+    n=0
 
+    #Sevenの初期化
     def init(self):
         #ゲーム開始時にデッキを作成して各プレイヤーに配布する
         if(not SevenLoop.card_deck and not SevenLoop.seven_players):
+            print(f"{SevenLoop.n}:{SevenLoop.seven_players}")
             SevenLoop.card_deck = self.set_card_deck()
-        if(not SevenLoop.seven_players):
+        # if(not SevenLoop.seven_players):
             players=[]
             players.append(input("参加者は誰ですか？"))
             self.set_players(players)
+            for p in SevenLoop.seven_players:
+                print(f"name:{p.name} card_deck:{p.card_deck}")
         pass
 
-    def set_card_deck(self):
+    def set_card_deck(self) -> list :
         card_deck =[]
         for s in ["S","C","H","D"]:
             for c in range(1,14,1):
                 sss=s+str(c)
-                print(sss)
+                # print(f"sss:{sss}")
                 card_deck.append(sss)
         card_deck.sort()
-        return card_deck.copy()
+        return copy.deepcopy(card_deck)
     
-    def set_players(self,name):
+    def set_players(self,name) -> list:
         players = []
         for p in range(0,4):
-            print(p)
+            # print(p)
             str = ""
             if p<len(name):
                 s=name[p]
             SevenLoop.seven_players.append(SevenPlayer(s))
-        card_deck = SevenLoop.card_deck.copy
-
+        SevenLoop.seven_players
         index = 0
-        for c in SevenLoop.card_deck.pop():
-            print(c)
+        for c in SevenLoop.card_deck:
+            print(f"c2: {c}")
             SevenLoop.seven_players[index].card_deck.append(c)
             index += 1
             if index >=4:
@@ -67,18 +57,19 @@ class SevenLoop(LoopBase):
         return players
         pass
 
+
     def loop(self):
-        n=0
+        SevenLoop.n=0
         while(self.loop):
             self.init()
             self.input()
             self.logic()
             self.check()
             self.view()
-            if n>10:
+            if SevenLoop.n>10:
                 self.loop=False
-            n+=1
-        pass
+            SevenLoop.n+=1
+        
     pass
 
 
@@ -87,6 +78,9 @@ class SevenPlayer:
     player_names = ["Player1","Player2","Player3","Player4"]
     players=[]
 
+    # コンストラクタ
+    # self.name
+    # self.card_deck
     def __init__(self, name=""):
         if name=="":
             self.name = SevenPlayer.player_names[len(SevenPlayer.players)]
