@@ -1,27 +1,7 @@
 import copy
 import numpy as np
-# import overrides
 from mypkgs.LoopBase import *
 from mypkgs.SevenPlayer import *
-
-#SevenPlayer
-# class SevenPlayer:
-#     player_names = ["Player1","Player2","Player3","Player4"]
-#     # players=[]
-
-#     # コンストラクタ
-#     # self.name
-#     # self.card_deck
-#     def __init__(self, name=""):
-#         # print(f"{len(SevenLoop.seven_players)}:name:{name}:type:{type(name)}")
-#         if name=="":
-#             self.name = SevenPlayer.player_names[len(SevenPlayer.players)]
-#         else:
-#             self.name = name
-        
-#         self.card_deck = []
-
-#         pass
 
 # sevenのメインループクラス
 class SevenLoop(LoopBase):
@@ -104,10 +84,6 @@ class SevenLoop(LoopBase):
 
 
 
-
-def main():
-    sl=SevenLoop()
-    sl.loop()
-
+#main
 if __name__ == "__main__":
-    main()
+    SevenLoop().loop()
