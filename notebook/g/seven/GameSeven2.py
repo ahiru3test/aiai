@@ -17,16 +17,16 @@ class GameSeven(GameBase):
         self.field = None
 
         # ユーザ名の入力
-        manager = pygame_gui.UIManager((640, 480)) # UIManagerオブジェクトを作成する
+        self.manager = pygame_gui.UIManager((640, 480)) # UIManagerオブジェクトを作成する
         # ルートコンテナを取得する # この行を追加する
-        container = manager.get_root_container()
+        container = self.manager.get_root_container()
 
 
         # テキストボックスのパラメータを設定する
         text_box_parameters = {
             "relative_rect": pygame.Rect((100, 200), (400, 50)), # 位置とサイズ
             #"text": "Enter some text", # 初期テキスト # この行を削除する
-            "manager": manager # UIManagerオブジェクト
+            "manager": self.manager # UIManagerオブジェクト
         }
         # テキストボックスのオブジェクトを作成する
         text_box = pygame_gui.elements.UITextEntryLine(**text_box_parameters)
@@ -48,7 +48,7 @@ class GameSeven(GameBase):
                     running = False
 
                 # イベントを処理する
-                manager.process_events(event)
+                self.manager.process_events(event)
 
                 # Enterキーが押されたらテキストボックスの内容を表示する
                 if event.type == pygame.KEYDOWN:
@@ -57,8 +57,8 @@ class GameSeven(GameBase):
                         text=text_box.get_text()
                         print(text)
             # テキストボックスのオブジェクトを画面に描画する
-            manager.update(self.clock.tick(60))
-            manager.draw_ui(self.screen)
+            # manager.update(self.clock.tick(60)) # この行を削除する
+            # manager.draw_ui(self.screen) # この行を削除する
 
 
 
@@ -100,50 +100,8 @@ class GameSeven(GameBase):
 
     def gview(self):
         print(self.deck)
-        pass
+        # テキストボックスのオブジェクトを画面に描画する # この行を追加する
+        self.manager.update(self.clock.tick(60))
+        self.manager.draw_ui(self.screen)
 
 if (__name__=="__main__"): (g := GameSeven()).run()
-
-
-
-# input_box = InputBox(100, 100, 140, 32)
-
-# running = True
-# while running:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-#         input_box.handle_event(event)
-
-#     screen.fill((30, 30, 30))
-#     input_box.draw(screen)
-
-#     pygame.display.flip()
-
-
-
-# # 入力ボックスを作成
-# input_box = pygame.TextInput()
-
-# # ゲームループ
-# while True:
-#     # イベント処理
-#     for event in pygame.event.get():
-#         # 入力ボックスを更新
-#         input_box.update(event)
-
-#     # ユーザーが入力するまでループ
-#     while not input_box.get_text():
-#         # イベント処理
-#         for event in pygame.event.get():
-#             # 入力ボックスを更新
-#             input_box.update(event)
-
-#     # ユーザーが入力したら、テキストを取得
-#     text = input_box.get_text()
-
-#     # 入力ボックスを非表示
-#     input_box.set_visible(False)
-
-#     # テキストを表示
-#     print(text)
