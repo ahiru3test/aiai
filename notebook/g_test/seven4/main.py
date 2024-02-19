@@ -2,6 +2,22 @@
 import pygame
 import pygame_gui
 
+class PG_Init:
+    def __init__(self,pg):
+        pygame.init() #pygame初期化
+        pygame.display.set_caption(window_name) #ウィンドウタイトル
+        pg.window_surface = pygame.display.set_mode((x, y)) #メインウィンドウ
+        pg.background = pygame.Surface((x, y)) #メインの背景
+        pg.background.fill(pygame.Color('#000000'))
+        pg.manager = pygame_gui.UIManager((x, y)) #guiマネージャ
+        pg.scene = "PG" #現在のシーン
+        pg.before_scene = "" #以前のシーン
+        pg.scenes={"PG":self._PG,"Main":self._Main}
+        pg.clock = pygame.time.Clock() #Clockを設定
+        self.frame=f #フレーム設定
+        self.is_running = True #ループする
+
+
 class PG:
     def __init__(self,window_name:str="PG",x:int=640,y:int=480,f:int=60):
         pygame.init() #pygame初期化
@@ -12,7 +28,7 @@ class PG:
         self.manager = pygame_gui.UIManager((x, y)) #guiマネージャ
         self.scene = "PG" #現在のシーン
         self.before_scene = "" #以前のシーン
-        self.scenes={"PG":"self._PG()","Main":"self._Main()"}
+        self.scenes={"PG":self._PG,"Main":self._Main}
         self.clock = pygame.time.Clock() #Clockを設定
         self.frame=f #フレーム設定
         self.is_running = True #ループする
@@ -21,9 +37,7 @@ class PG:
         self.time_delta = self.clock.tick(self.frame)/1000.0 #ループ毎のClockの設定
         if (self.scene != self.before_scene):
             ###ループの最初や画面遷移の直後に行う初期化
-            print(self.scene)
-            print(self.scenes)
-            getattr(self, f"{self.scenes[self.scene]}")()
+            self.scenes["PG"]
             #シーン変更処理完了
             self.before_scene == self.scene
         pass
