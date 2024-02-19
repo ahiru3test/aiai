@@ -1,117 +1,146 @@
 import tkinter as tk
  
-root=tk.Tk()
- 
-def num_pushed(event):
-    """
-    0-9. button pushed
-    event.widget['txt']で押されたボタンの「数値」を取得して
-    算術計算のオペランドを作成する。
-    """
-    num_str=event.widget['text']
-    print(num_str)
- 
- 
-def dot_pushed(event):
-    """
-    dot button pushed
-    小数点をオペランドに追加する。
-    """
-    num_str=event.widget['text']
-    print(num_str)
+class Calc(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+        #self.frm_formula = tk.LabelFrame(self, text='Formula')
+        #self.frm_formula.pack(anchor='e')
+        self.frm_result = tk.LabelFrame(self, text='Result')
+        self.frm_result.pack(anchor='e')
+        self.frm_func = tk.Frame(self)
+        self.frm_func.pack(anchor='w')
+        self.frm_button = tk.Frame(self)
+        self.frm_button.pack(anchor='w')
+        self.create_widgets()
         
+    def create_widgets(self):
+        self.result=tk.StringVar()
+        self.result.set('0')
+        #self.formula=tk.StringVar()
+        #self.formula.set('')
+        
+        self.operand =""
+        self.expr = ""
+        #self.clear_expr = False
+        
+        #formula ラベル(式表示)
+        #lb = tk.Label(self.frm_formula, textvariable=self.formula)
+        #lb.pack()
+        #result ラベル(結果表示)
+        lb = tk.Label(self.frm_result, textvariable=self.result)
+        lb.pack()
  
-def op_pushed(event):
-    '''
-    operator(+ - / *) button pushed
-    ボタンで入力されたオペランドをオペレータに適用する。
-    '''
-    op=event.widget['text']
-    print(op)
+        # create and bind clear button
+        btn = tk.Button(self.frm_func,text='C',width=3)
+        btn.bind("<Button-1>", self.clr_pushed)
+        btn.grid(column=0, row=0)
  
-def eq_pushed(event):        
-    '''
-     equal(=) button pushed
-    「=」ボタンが押されたらeval()で計算式を評価する。
-    '''
-    print("=")
+        # create 1-9. buttons
+        for n, cap in enumerate([7,8,9,4,5,6,1,2,3,0]):
+            btn = tk.Button(self.frm_button,text=str(cap),width=3)
+            btn.bind("<Button-1>", self.num_pushed)
+            btn.grid(column=n%3, row=n//3)
+        
+        # create dot button    
+        btn = tk.Button(self.frm_button,text='.',width=3)
+        btn.bind("<Button-1>", self.dot_pushed)
+        btn.grid(column=1, row=3)
  
-def clr_pushed(event):
-    '''
-     clear(C) button pushed
-    「C」ボタンが押されたら計算式と表示をクリアする
+        # create operater buttons
+        for n, cap in enumerate(['/','*','-','+']):
+            btn = tk.Button(self.frm_button, text=cap, width=3)
+            btn.bind("<Button-1>", self.op_pushed)
+            btn.grid(column=3, row=n)
  
-    '''
-    print("C")
+        # create and bind equal button
+        btn = tk.Button(self.frm_button,text='=',width=3)
+        btn.bind("<Button-1>", self.eq_pushed)
+        btn.grid(column=2, row=3)
  
-#class Calc(tk.Frame):
-#    def __init__(self, master=None):
-#        super().__init__(master)
-#        self.pack()
-# ベースになるフィレームを定義
-frm = tk.Frame(root)
-frm.pack()
-#frm_formula = tk.LabelFrame(frm, text='Formula')
-#frm_formula.pack(anchor='e')
-frm_result = tk.LabelFrame(frm, text='Result')
-frm_result.pack(anchor='e')
-frm_func = tk.Frame(frm)
-frm_func.pack(anchor='w')
-frm_button = tk.Frame(frm)
-frm_button.pack(anchor='w')
-#        create_widgets()
+    def num_pushed(self,event):
+        """
+        0-9. button pushed
+        event.widget['txt']で押されたボタンの「数値」を取得して
+        算術計算のオペランドを作成する。
+        """
+        num_str=event.widget['text']
+        print(num_str)
  
-#    def create_widgets(self):
-result=tk.StringVar()
-result.set('0')
-#formula=tk.StringVar()
-#formula.set('')
+        self.operand += num_str
+        self.result.set(self.operand)
+  
+    def dot_pushed(self, event):
+        """
+        dot button pushed
+        小数点をオペランドに追加する。
+        """
+        num_str=event.widget['text']
+        print(num_str)
+        #self.operand += num_str
+        #self.result.set(self.operand)
  
-operand =""
-expr = ""
-#clear_expr = False
+        if self.operand == "":
+            self.operand += "0" + num_str
+        elif num_str not in self.operand:
+            self.operand += num_str
+        else:
+            return
+        self.result.set(self.operand)           
  
+    def op_pushed(self,event):
+        '''
+        operator(+ - / *) button pushed
+        ボタンで入力されたオペランドをオペレータに適用する。
+        '''
+        op=event.widget['text']
+        print(op)
+        #self.expr = self.expr + self.operand + op
+        #self.operand = ""
+        #print(self.expr)
+        try:
+            eval(self.expr + self.operand + op + "1")
+        except Exception as e:
+            print(e)
+            print("Error!",self.expr + self.operand + op + "1")
+        else:
+            self.expr = self.expr + self.operand + op
+            self.operand = ""
+            print(self.expr)
  
-#formula ラベル(式表示)
-#lb = tk.Label(frm_formula, textvariable=formula)
-#lb.pack()
-#result ラベル(結果表示)
-lb = tk.Label(frm_result, textvariable=result)
-lb.pack()
+    def eq_pushed(self,event):        
+        '''
+         equal(=) button pushed
+        「=」ボタンが押されたらeval()で計算式を評価する。
+        '''
+        print("=")        
+        try:
+            ex = self.expr + self.operand
+            eval(ex)
+        except Exception as e:
+            print(e)
+            print("Error! ", ex)
+        else:
+            rslt = eval(ex)
+            self.result.set(rslt)
+            print(rslt)
+            self.operand = ""
+            self.expr = ""
+            
+    def clr_pushed(self,event):
+        '''
+         clear(C) button pushed
+        「C」ボタンが押されたら計算式と表示をクリアする
  
-# create and bind clear button
-btn = tk.Button(frm_func, text='C',width=3)
-btn.bind("<Button-1>", clr_pushed)
-btn.grid(column=0, row=0)
- 
-# create 1-9. buttons
-for n, cap in enumerate([7,8,9,4,5,6,1,2,3,0]):
-    btn = tk.Button(frm_button,text=str(cap),width=3)
-    btn.bind("<Button-1>", num_pushed)
-    btn.grid(column=n%3, row=n//3)
- 
-# create dot button    
-btn = tk.Button(frm_button,text='.',width=3)
-btn.bind("<Button-1>", dot_pushed)
-btn.grid(column=1, row=3)
- 
-# create operater buttons
-for n, cap in enumerate(['/','*','-','+']):
-    btn = tk.Button(frm_button, text=cap, width=3)
-    btn.bind("<Button-1>", op_pushed)
-    btn.grid(column=3, row=n)
- 
-# create and bind equal button
-btn = tk.Button(frm_button,text='=',width=3)
-btn.bind("<Button-1>", eq_pushed)
-btn.grid(column=2, row=3)
- 
-#if __name__ == '__main__':
-    #root=tk.Tk()
-    #root.geometry('210x280+100+100')
-    #root.title("Cal")
-    #app = Calc(master=root)
-    #app.mainloop()
-root.geometry('210x280+100+100')    
-root.title("Cal")
-root.mainloop()
+        '''
+        print("C")
+        self.expr = ""
+        self.operand = ""
+        self.result.set("0")
+        
+if __name__ == '__main__':
+    root=tk.Tk()
+    root.geometry('210x280+100+100')
+    root.title("Cal")
+    app = Calc(master=root)
+    app.mainloop()
