@@ -4,18 +4,19 @@ import pygame_gui
 
 class PG_Init:
     def __init__(self,pg):
-        pygame.init() #pygame初期化
-        pygame.display.set_caption(window_name) #ウィンドウタイトル
-        pg.window_surface = pygame.display.set_mode((x, y)) #メインウィンドウ
-        pg.background = pygame.Surface((x, y)) #メインの背景
-        pg.background.fill(pygame.Color('#000000'))
-        pg.manager = pygame_gui.UIManager((x, y)) #guiマネージャ
-        pg.scene = "PG" #現在のシーン
-        pg.before_scene = "" #以前のシーン
-        pg.scenes={"PG":self._PG,"Main":self._Main}
-        pg.clock = pygame.time.Clock() #Clockを設定
-        self.frame=f #フレーム設定
-        self.is_running = True #ループする
+        # pygame.init() #pygame初期化
+        # pygame.display.set_caption(window_name) #ウィンドウタイトル
+        # pg.window_surface = pygame.display.set_mode((x, y)) #メインウィンドウ
+        # pg.background = pygame.Surface((x, y)) #メインの背景
+        # pg.background.fill(pygame.Color('#000000'))
+        # pg.manager = pygame_gui.UIManager((x, y)) #guiマネージャ
+        # pg.scene = "PG" #現在のシーン
+        # pg.before_scene = "" #以前のシーン
+        # pg.scenes={"PG":self._PG,"Main":self._Main}
+        # pg.clock = pygame.time.Clock() #Clockを設定
+        # self.frame=f #フレーム設定
+        # self.is_running = True #ループする
+        pass
 
 
 class PG:

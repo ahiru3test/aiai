@@ -1,5 +1,5 @@
-class GameSeven():
-    
+class GameSevenBase:pass
+
 class GameSevenInit(GameSevenBase):
     def __init__(self,g):
         self.g=g
