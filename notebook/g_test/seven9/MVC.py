@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from SingletonMeta import SingletonMeta
 
 ### Model -------------------------------------------------------------
 class MTitle():
@@ -7,7 +8,7 @@ class MTitle():
     text = ""
     def init(self,c):pass
 
-### View
+### View --------------------------------------------------------------
 class PG():
     def init(self,c):
         pygame.init()
@@ -23,13 +24,10 @@ class PG():
 
         return self
 
-    def view(self):
-        print(self.c.scene)
-
 class VTitle():
     def init(self,c):
         text_surface = c.font.render(
-            c.m_list["Title"].title, True, (255, 255, 255))
+            c.m_dict["Title"].title, True, (255, 255, 255))
         text_rect = text_surface.get_rect()
         text_rect.center = (c.width // 2, c.height // 2)
         c.window_surface.blit(text_surface, text_rect)
@@ -42,67 +40,67 @@ class VTitle():
         )
         c.text_box.set_position((c.width // 2 - 100, 50)) # 画面上部
 
-### Controller
-class Main():
-    def __init__(self,name="MVC",width=640,height=480,frame=60):
-        self.name=name
-        self.width=width
-        self.height=height
-        self.frame=frame
-        self.scene = "Title" #今のシーン
-        self.before_scene = "" #前のシーン
-        self.m_list={"":MTitle,"Title":MTitle}
-        self.v_list={"":VTitle,"Title":VTitle}
-        # self.c_list={"":CTitle,"Title":CTitle}
-        self.is_running = True #ループする
-        self.pg = PG().init(self)
-
-    def gresolve(self):
-        self.time_delta = self.clock.tick(self.frame)/1000.0 #Clock設定
-        if (self.scene != self.before_scene):
-            ###ループの最初や画面遷移の直後に行う初期化
-            self.m_list[self.scene]().init(self)
-            #シーン変更処理完了
-            self.before_scene = self.scene
-            # print(f"{self.scene} (<-{self.before_scene})")
-        pass
-
-    def ginput(self):
+### Controller---------------------------------------------------------
+class Input(metaclass=SingletonMeta):
+    def do(self, c):
+        c.time_delta = c.clock.tick(c.frame)/1000.0 #Clock設定
         ###イベント周りの処理はこの辺で
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.is_running = False
-            
+                c.is_running = False
 
             ### add event action
             # if event.type == pygame_gui.UI_BUTTON_PRESSED:
             #     if event.ui_element == hello_button:
             #         print('Hello World!')
 
-            self.manager.process_events(event)
+            c.manager.process_events(event)
 
             # self.CList[self.scene]().init(self)
 
-    def gview(self):
-        self.manager.update(self.time_delta) #guiの更新
-        self.window_surface.blit(self.background, (0, 0)) #画面の描画
+class Logic(metaclass=SingletonMeta):
+    def do(self, c):pass
+
+class Resolve(metaclass=SingletonMeta):
+    def do(self, c):
+        if (c.scene != c.before_scene):
+            ###ループの最初や画面遷移の直後に行う初期化
+            c.m_dict[c.scene]().init(c)
+            #シーン変更処理完了
+            c.before_scene = c.scene
+            # print(f"{self.scene} (<-{self.before_scene})")
+
+class View(metaclass=SingletonMeta):
+    def do(self, c):
+        c.manager.update(c.time_delta) #guiの更新
+        c.window_surface.blit(c.background, (0, 0)) #画面の描画
 
         ### 描画時に小細工をする場合はこの辺に
-        self.v_list[self.scene]().init(self)
+        c.v_dict[c.scene]().init(c)
         ###
 
-        self.manager.draw_ui(self.window_surface) #guiの描画
+        c.manager.draw_ui(c.window_surface) #guiの描画
         pygame.display.update() #pg表示の更新
 
-    def run(self):
-        while self.is_running:
-            # self.ginit()
-            self.ginput()
-            # self.glogic()
-            self.gresolve()
-            self.gview()
-            pass
-        pass    
-    pass
+class Main():
+    def __init__(self,name="MVC",width=640,height=480,frame=60):
+        self.name=name
+        self.width=width
+        self.height=height
+        self.frame=frame
 
-if (__name__=="__main__"): (m := Main()).run()
+        self.scene = "Title" #今のシーン
+        self.before_scene = "" #前のシーン
+        self.b_list=[Input,Logic,Resolve,View]
+        self.m_dict={"":MTitle,"Title":MTitle}
+        self.v_dict={"":VTitle,"Title":VTitle}
+        # self.c_list={"":CTitle,"Title":CTitle}
+        self.is_running = True #ループする
+
+        self.pg = PG().init(self)
+
+        while self.is_running:
+            for c in self.b_list:
+                c().do(self)
+
+if (__name__=="__main__"): Main()
