@@ -1,85 +1,57 @@
 ###MVC
-# モデル
-class User:
-    def __init__(self, name, email):
-        self.name = name
-        self.email = email
+class User:                                                     # Model
+    def __init__(self, name): self.name = name
 
-# ビュー
-class UserView:
-    def display_user(self, user):
-        print(f"Name: {user.name}, Email: {user.email}")
+class UserView:                                                 # View
+    def display_user(self, user): print(f"Name: {user.name}")
 
-# コントローラー
-class UserController:
+class UserController:                                           # Controller
     def __init__(self, model, view):
         self.model = model
         self.view = view
 
     def get_user(self, user_id):
-        user = self.model.get_user(user_id)
+        user = self.model
         self.view.display_user(user)
 
-# メイン
-if __name__ == "__main__":
-    user = User("John Doe", "john.doe@example.com")
+if __name__ == "__main__":                                      # Main
+    user = User("John Doe")
     view = UserView()
     controller = UserController(user, view)
-    controller.get_user(1)
-
+    controller.get_user(0)
 exit()
 
-### ADR
-from flask import Flask, render_template, request
 
-# モデル
-class UserADR(db.Model):
-    name = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
 
-    def __repr__(self):
-        return f"<User name={self.name}, email={self.email}>"
+###ADR
+class GetUserAction:                                            # Action
+    def __init__(self, user_id, model):
+        self.user_id = user_id
+        self.model = model
 
-# レスポンダー
-class HtmlResponder:
-    def __init__(self, template):
-        self.template = template
+    def execute(self):
+        user = self.model
+        return user
 
-    def respond(self, payload):
-        return render_template(self.template, **payload)
+class UserModel:                                                # Domain
+    def __init__(self):
+        self.users = []
 
-# アクション
-class IndexAction:
-    def __init__(self, responder):
-        self.responder = responder
-
-    def __call__(self):
-        users = UserADR.query.all()
-        return self.responder.respond({'users': users})
-
-class ShowAction:
-    def __init__(self, responder):
-        self.responder = responder
-
-    def __call__(self, user_id):
-        user = UserADR.query.get(user_id)
-        if user is None:
-            return "Not Found", 404
+class UserResponder:                                            # Responder
+    def display_user(self, user):
+        if user is not None:
+            print(f"Name: {user.name}")
         else:
-            return self.responder.respond({'user': user})
+            print("User not found")
 
-# アプリケーション
-app = Flask(__name__)
+if __name__ == "__main__":                                      # Main
+    user_model = UserModel()
+    user_model.users.append(User("John Doe"))
 
-@app.route('/')
-def index():
-    action = IndexAction(HtmlResponder('users/index.html'))
-    return action()
+    action = GetUserAction(0, user_model)
+    user = action.execute()
 
-@app.route('/users/<int:user_id>')
-def show(user_id):
-    action = ShowAction(HtmlResponder('users/show.html'))
-    return action(user_id)
+    responder = UserResponder()
+    responder.display_user(user)
 
-if __name__ == '__main__':
-    app.run()
+exit()
