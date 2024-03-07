@@ -1,5 +1,6 @@
 import pandas as pd
-import pickle,os
+import pickle
+import os
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -31,6 +32,13 @@ class DTC:
     @classmethod
     def set_target(cls, target_column):
         cls.target_column = target_column
+
+        # 特徴量と正解ラベルを分割する
+        if cls.columns is None:
+            columns = list(cls.dataframe.drop(cls.target_column, axis=1).columns())
+            cls.set_columns(columns)
+
+
     @classmethod
     def get_target(cls):
         return cls.target_column
@@ -38,6 +46,23 @@ class DTC:
     @classmethod
     def set_columns(cls, columns):
         cls.columns = columns
+    
+    @classmethod
+    def get_columns(cls):
+        return cls.columns
+
+    @classmethod
+    def split_org(cls):
+        # 特徴量と正解ラベルを分割する
+        if cls.columns is None:
+            cls.X = cls.dataframe.drop(cls.target_column, axis=1)
+        else:
+            cls.X = cls.dataframe[cls.columns]
+        
+        cls.y = cls.dataframe[cls.target_column]
+
+        # データを訓練データとテストデータに分割する
+        return train_test_split(cls.X, cls.y, **cls.test_parameters)
 
     @classmethod
     def split(cls):
@@ -73,7 +98,6 @@ class DTC:
     def dump(self,file_path):
         with open(file_path, 'wb') as f:
             pickle.dump(self.model, f)
-
 
 
 if (__name__=="__main__"):
