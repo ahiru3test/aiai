@@ -107,6 +107,7 @@ class SklModel():
             "DecisionTreeClassifier",
             "DecisionTreeRegressor",
             "LinearRegression",
+            "Ridge",
         ]
         if model_name not in self.models : return None
         self.model_name = model_name
@@ -116,6 +117,8 @@ class SklModel():
             return LinearRegression(**self.model_parameters)
         elif model_name == "DecisionTreeRegressor":
             return DecisionTreeRegressor(**self.model_parameters)
+        elif model_name == "Ridge":
+            return Ridge(**self.model_parameters)
         else:
             return None
 
